@@ -76,7 +76,23 @@ class Pito:
 
     def get_mod(self):
         self.meta.include = [mod.split(".py")[0] for mod in self.meta.include]
-        self.modules = [importlib.import_module(name) for name in self.meta.include]
+        #self.modules = [importlib.import_module(name) for name in self.meta.include]
+        self.modules = []
+        for name in self.meta.include:
+            try:
+                # 1. พยายาม import แบบปกติก่อน (สำหรับ user modules เช่น 'fn')
+                module = importlib.import_module(name)
+                self.modules.append(module)
+            except ModuleNotFoundError as e:
+                # 2. ถ้าหาไม่เจอ (เช่น 'builtin') ให้ลองหาข้างใน 'pito'
+                try:
+                    relative_name = f"pito.{name}"
+                    module = importlib.import_module(relative_name)
+                    self.modules.append(module)
+                except ModuleNotFoundError:
+                    # 3. ถ้ายังหาไม่เจออีก = พังจริง
+                    print(f"FATAL: Module '{name}' not found as a user module or as a pito module (pito.{name})", file=sys.stderr)
+                    raise e
 
     def get_fn(self):
         self.functions_map = {}
@@ -129,8 +145,9 @@ class Pito:
             content = content[:start_idx] + str(parse_fn.result) + content[start_idx+len(parse_fn.literal):]
         return content
     
-def copy_template_files(destination_dir):
+def copy_template_files(pwd, destination_dir):
     try:
+        destination_dir = os.path.join(pwd, destination_dir)
         template_path = resources.files("pito").joinpath("template")
 
         if not os.path.exists(destination_dir):
@@ -238,7 +255,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "init":
-        copy_template_files(os.getcwd())
+        copy_template_files(os.getcwd(), args.directory)
     
     elif args.command == "build":
         run_build_process(args)
