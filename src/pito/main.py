@@ -116,8 +116,8 @@ class Pito:
             literal = m.group()
             fn = FnTree(
                 literal=literal,
-                name=literal[2:-2].split('(')[0],
-                func=literal[2:-2],
+                name=literal[2:-2].split('(')[0].strip(),
+                func=literal[2:-2].strip(),
                 start_idx=m.start(),
                 end_idx=m.end(),
             )

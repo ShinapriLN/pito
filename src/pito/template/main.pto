@@ -1,6 +1,6 @@
-\title{ {{getTitle()}} }
-\author{ {{getAuthor()}} }
-\date{ {{getDate()}} }
+\title{{{getTitle()}}}
+\author{{{getAuthor()}}}
+\date{{{getDate()}}}
 
 \maketitle
 \clearpage
